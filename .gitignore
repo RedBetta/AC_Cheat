@@ -1,0 +1,8 @@
+*.dll
+*.pdb
+*.vcxproj
+*.filters
+*.user
+Debug
+Release
+.vs
