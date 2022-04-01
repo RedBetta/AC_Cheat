@@ -144,7 +144,7 @@ void DisableRecoilHack()
 }
 
 
-int ESPThread()
+int HackThread()
 {
     AllocConsole();
     FILE* f;
@@ -269,7 +269,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ESPThread, NULL, NULL, NULL);
+        CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)HackThread, NULL, NULL, NULL);
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:
