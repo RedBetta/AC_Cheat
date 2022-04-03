@@ -1,65 +1,75 @@
-#pragma once
+﻿#pragma once
 #include <stdint.h>
-
+#include <Windows.h>
 #include "Vector.h"
 
-
+enum gameModes
+{
+	TEAMDEATHMATCH = 0,
+	COOPEDIT,
+	DEATHMATCH,
+	SURVIVOR,
+	TEAMSURVIVOR,
+	CTF,
+	PISTOLFRENZY,
+	BOTTEAMDEATHMATCH,
+	BOTDEATHMATCH,
+	LASTSWISSSTANDING,
+	ONESHOTONEKILL,
+	TEAMONESHOTONEKİLL,
+	BOTONESHOTONEKILL,
+	HUNTTHEFLAG,
+	ТEAMKEEРTHEFLAG,
+	KEEPTHEFLAG,
+	TEAMPF,
+	TEAMLSS,
+	BOTPISTOLFRENZY,
+	Botlss,
+	BOTTEAMSURVIVOR,
+	BOTTEAMONESHOTONEKILL,
+	NUM
+};
 
 // Created with ReClass.NET 1.2 by KN4CK3R
+class Weapon
+{
+public:
+	class VTable* vTable; //0x0000
+	int32_t ID; //0x0004
+	class N00000594* owner; //0x0008
+	class N000005A8* info; //0x000C
+	class Ammo* ammo; //0x0010
+	class Ammo2* ammo2; //0x0014
+	char pad_0018[4]; //0x0018
+	int32_t nbShotsFiredWithoutInterruption; //0x001C
+	int32_t isReloading; //0x0020
+	char pad_0024[32]; //0x0024
+}; //Size: 0x0044
+static_assert(sizeof(Weapon) == 0x44);
 
 class Player
 {
 public:
-	char pad_0000[4];
+	uint32_t vTable; //0x0000
 	Vector3 headPosition; //0x0004
-	char pad_0010[36]; //0x0010
-	Vector3 bodyPosition; //0x0034
-	char pad_0040[40]; //0x0040
-	int32_t isJumping; //0x0068
-	char pad_006C[4]; //0x006C
-	int32_t isMoving; //0x0070
-	char pad_0074[132]; //0x0074
-	int32_t healthGUI; //0x00F8
-	int32_t armor; //0x00FC
-	char pad_0100[12]; //0x0100
-	int32_t pistolAmmoOutsideClip; //0x010C
-	char pad_0110[24]; //0x0110
-	int32_t mainWeaponAmmoOutsideClip; //0x0128
-	char pad_012C[16]; //0x012C
-	int32_t pistolAmmoInClip; //0x013C
-	char pad_0140[16]; //0x0140
-	int32_t mainWeaponAmmoInClip; //0x0150
-	char pad_0154[4]; //0x0154
-	int32_t nbOfGrenades; //0x0158
-	char pad_015C[4]; //0x015C
-	int32_t KnifeBlowCooldown; //0x0160
-	int32_t pistolFireCooldown; //0x0164
-	char pad_0168[16]; //0x0168
-	int32_t mainWeaponFireCooldown; //0x0178
-	char pad_017C[4]; //0x017C
-	int32_t grenadeCooldown; //0x0180
-	char pad_0184[4]; //0x0184
-	int32_t nbOfKnifeBlows; //0x0188
-	int32_t nbOfPistolFiredShots; //0x018C
-	char pad_0190[16]; //0x0190
-	int32_t nbOfMainWeaponFiredShots; //0x01A0
-	char pad_01A4[128]; //0x01A4
-	int8_t bAttack; //0x0224
-	char pad_0225[263]; //0x0225
-	uint8_t team; //0x032C
-	char pad_032D[11]; //0x032D
-	uint8_t state; //0x0338
-	char pad_0339[59]; //0x0339
-	class weapon* currentWeapon; //0x0374
-	char pad_0378[200]; //0x0378
-
-
-	//struct traceresult_s
-	//{
-	//	Vector3 end;
-	//	bool collided;
-	//};
-
+	char _qsdfqsdf[36];
+	Vector3 bodyPosition;
+	Vector3 rotation;
+	char qdqd[37];
+	BYTE bScoping;
+	char qdqds[134];
+	__int32 health;
+	__int32 armor;
+	char qsdgqsd[292];
+	BYTE bAttack;
+	char name[16];
+	char qdgqg[247];
+	BYTE team;
+	char qsdgf[11];
+	BYTE state;
+	char sfgsdfh[59];
+	Weapon* weapon;
+	char qsdgqsdg[520];
 
 	bool isVisible(Player* localPlayer)
 	{
@@ -87,53 +97,42 @@ public:
 		return !traceresult.w;
 
 	}
-
-
-
 }; //Size: 0x0440
 
-class weapon
+struct PlayersList
 {
-public:
-	char pad_0000[8]; //0x0000
-	class GunOWNER* owner; //0x0008
-	class GunINFO* gunInfo; // 0x00C
-	char pad_000C[4]; //0x0010
-	class ammoclip* ammoPtr; //0x0014
-	char pad_0018[4];
-	int64_t shotsWithoutInterruption;
-	char pad_0020[44]; //0x0018
-}; //Size: 0x0044
-
-
-class GunINFO
-{
-public:
-	char pad_0000[290]; // 0x0000
-	int16_t recoilMagicNumber;
-
+	Player* ents[31];
 };
 
-class GunOWNER
-{
-public:
-	char pad_0000[16]; //0x0000
-	Vector3 directionVelocityVector;
-}; //Size: 0x0044
 
-class N0000044A
+class VTable
 {
 public:
-	char pad_0000[68]; //0x0000
+	void* Destructor; //0x0000
+	char pad_0004[64]; //0x0004
 }; //Size: 0x0044
-static_assert(sizeof(N0000044A) == 0x44);
+static_assert(sizeof(VTable) == 0x44);
 
-class ammoclip
+class Ammo
 {
 public:
-	int32_t ammo; //0x0000
+	int32_t ammoOutside; //0x0000
 	char pad_0004[36]; //0x0004
-	int32_t fireCoolDown; //0x0028
-	char pad_002C[24]; //0x002C
-}; //Size: 0x0044
-static_assert(sizeof(ammoclip) == 0x44);
+	int32_t ammoInside; //0x0028
+	char pad_002C[76]; //0x002C
+	int32_t nbShotsFired; //0x0078
+	char pad_007C[200]; //0x007C
+}; //Size: 0x0144
+static_assert(sizeof(Ammo) == 0x144);
+
+class Ammo2
+{
+public:
+	int32_t ammoInside; //0x0000
+	char pad_0004[36]; //0x0004
+	int32_t shootAndReloadCD; //0x0028
+	char pad_002C[12]; //0x002C
+	int32_t maxAmmoOutside; //0x0038
+	char pad_003C[264]; //0x003C
+}; //Size: 0x0144
+static_assert(sizeof(Ammo2) == 0x144);

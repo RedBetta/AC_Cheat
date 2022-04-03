@@ -1,35 +1,32 @@
 #pragma once
+#include <algorithm>
 #include "constants.h"
 
-struct Vector3
+class Vector3
 {
-    float x, y, z;
+public:
+	float x, y, z;
+
+	Vector3() {};
+
+	Vector3(const float x, const float y, const float z) : x(x), y(y), z(z) {}
+
+	Vector3 operator + (const Vector3& rhs) const { return Vector3(x + rhs.x, y + rhs.y, z + rhs.y); }
+	Vector3 operator - (const Vector3& rhs) const { return Vector3(x - rhs.x, y - rhs.y, z - rhs.y); }
+	Vector3 operator * (const float& rhs) const { return Vector3(x * rhs, y * rhs, z * rhs); }
+	Vector3 operator / (const float& rhs) const { return Vector3(x / rhs, y / rhs, z / rhs); }
+	Vector3& operator += (const Vector3& rhs) { return *this = *this + rhs; }
+	Vector3& operator -= (const Vector3& rhs) { return *this = *this - rhs; }
+	Vector3& operator *= (const float& rhs) { return *this = *this * rhs; }
+	Vector3& operator /= (const float& rhs) { return *this = *this / rhs; }
+
+	float Length() const { return sqrtf(x * x + y * y + z * z); }
+
+	Vector3 Normalize() const { return *this * (1 / Length()); }
+
+	float Distance(const Vector3& rhs) const { return (*this - rhs).Length(); }
 };
 
-struct Vector4
-{
-    float x, y, z, w;
-};
+struct Vector4 { float x, y, z, w; };
+struct Vector2 { float x, y; };
 
-struct Vector2
-{
-    float x, y;
-};
-
-float getMagnitude(Vector3 v1, Vector3 v2)
-{
-    return (float)sqrt(pow(v2.x - v1.x, 2) + pow(v2.y - v1.y, 2) + pow(v2.z - v1.z, 2) * 1.0);
-}
-
-float calcYaw(Vector3 localPlayerPos, Vector3 otherPlayerPos)
-{
-    return (float)atan2(otherPlayerPos.y - localPlayerPos.y, otherPlayerPos.x - localPlayerPos.x) * (float)(180 / pi);
-}
-
-float calcPitch(Vector3 localPlayerPos, Vector3 otherPlayerPos)
-{
-    float opposite = otherPlayerPos.z - localPlayerPos.z;
-    float adjacent = (float)sqrt(pow(otherPlayerPos.y - localPlayerPos.y, 2) + pow(otherPlayerPos.x - localPlayerPos.x, 2));
-    return (float)atan2(opposite, adjacent) * (float)(180 / pi);
-
-}
