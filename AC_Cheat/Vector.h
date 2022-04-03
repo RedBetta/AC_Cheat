@@ -1,6 +1,5 @@
 #pragma once
 #include <algorithm>
-#include "constants.h"
 
 class Vector3
 {
