@@ -117,7 +117,6 @@ DWORD WINAPI HackThread(HMODULE hModule)
 
     // Recoil Hack
     EnableRecoilHack();
-    bool bRecoilHackActive = true;
     bool bHackActive = true;
 
     while (!GetAsyncKeyState(VK_END))
@@ -125,21 +124,21 @@ DWORD WINAPI HackThread(HMODULE hModule)
         if (GetAsyncKeyState(VK_NUMPAD1) & 1)
         {
             bHackActive = !bHackActive;
-            if (bRecoilHackActive)
+            if (!bHackActive)
             {
                 DisableRecoilHack();
-                bRecoilHackActive = false;
+                SwapBuffersHook.Disable();
+                SetAmmo(AC::localPlayer, 20);
+            }
+            else
+            {
+                EnableRecoilHack();
+                SwapBuffersHook.Enable();
             }
         }
 
         if (bHackActive)
         {
-            if (!bRecoilHackActive)
-            {
-                EnableRecoilHack();
-                bRecoilHackActive = true;
-            }
-
             int nbOfPlayers = *(int*)(0x50F500);
 
             if (players.size() != nbOfPlayers)
