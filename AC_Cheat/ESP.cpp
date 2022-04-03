@@ -1,49 +1,11 @@
 #include "pch.h"
 #include "ESP.h"
 
-
-bool ESP::IsTeamGame()
-{
-	switch (*gameMode)
-	{
-	case 0:
-	case 4:
-	case 5:
-	case 7:
-	case 11:
-	case 13:
-	case 14:
-	case 16:
-	case 17:
-	case 20:
-	case 21:
-		return true;
-	default:
-		return false;
-	}
-}
-bool ESP::IsEnemy(Player* e)
-{
-	if (localPlayer->team == e->team)
-		return false;
-	else return true;
-}
-bool ESP::isValidEnt(Player* ent)
-{
-	if (ent)
-	{
-		if ((ent->vTable == 0x4E4A98 || ent->vTable == 0x4E4AC0) && ent->health > 0)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 void ESP::DrawESPBox(Player* e, Vector2 bodyScreen, Vector2 headScreen, GL::Font& font)
 {
+
 	const GLubyte* color = nullptr;
-	if (IsTeamGame() && !IsEnemy(e))
+	if (AC::IsTeamGame() && !AC::IsEnemy(e))
 	{
 		color = rgb::green;
 	}
@@ -66,22 +28,22 @@ void ESP::DrawESPBox(Player* e, Vector2 bodyScreen, Vector2 headScreen, GL::Font
 }
 
 
-
 void ESP::Draw(GL::Font& font)
 {
+	int viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport); // Get viewport (width and height of the screen)
-	for (int i = 0; i < *numOfPlayers; i++)
+	for (int i = 0; i < *AC::nbPlayers; i++)
 	{
-		if (isValidEnt(entlist->ents[i]))
+		if (AC::isValidEnt(AC::playersList->players[i]))
 		{
-			Player* e = entlist->ents[i];
+			Player* e = AC::playersList->players[i];
 
 			Vector2 bodyScreenCoords;
 			Vector2 headScreenCoords;
 
-			if (WorldToScreen(e->bodyPosition, bodyScreenCoords, matrix, viewport[2], viewport[3]))
+			if (WorldToScreen(e->bodyPosition, bodyScreenCoords, AC::matrix, viewport[2], viewport[3]))
 			{
-				if (WorldToScreen(e->headPosition, headScreenCoords, matrix, viewport[2], viewport[3]))
+				if (WorldToScreen(e->headPosition, headScreenCoords, AC::matrix, viewport[2], viewport[3]))
 				{
 					DrawESPBox(e, bodyScreenCoords, headScreenCoords, font);
 				}

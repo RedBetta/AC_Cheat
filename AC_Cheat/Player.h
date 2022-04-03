@@ -101,7 +101,7 @@ public:
 
 struct PlayersList
 {
-	Player* ents[31];
+	Player* players[31];
 };
 
 

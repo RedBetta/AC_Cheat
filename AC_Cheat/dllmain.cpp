@@ -29,7 +29,6 @@ twglSwapBuffers wglSwapBuffersGateway;
 GL::Font glFont;
 const int FONT_HEIGHT = 15;
 const int FONT_WIDTH = 9;
-ESP esp;
 
 void SetAmmo(Player* player, int nbOfAmmo)
 {
@@ -59,7 +58,7 @@ void Draw()
 
     GL::SetupOrtho();
 
-    esp.Draw(glFont);
+    ESP::Draw(glFont);
 
     GL::RestoreGL();
 }
@@ -70,6 +69,24 @@ BOOL __stdcall hkwglSwapBuffers(HDC hdc)
     // ESP
     Draw();
     return wglSwapBuffersGateway(hdc);
+}
+
+
+void GetPlayersList(std::vector<Player*>& players, int nbPlayers)
+{
+    DWORD playersList = *(DWORD*)0x0050F4F8;
+    for (int i = 1; i < nbPlayers; i++)
+    {
+        Player* player = *((Player**)(playersList + 0x4 * i) + 0x0);
+
+        if (player != NULL)
+        {
+            if (player != players[i])
+            {
+                players[i] = player;
+            }
+        }
+    }
 }
 
 DWORD WINAPI HackThread(HMODULE hModule)
@@ -94,59 +111,61 @@ DWORD WINAPI HackThread(HMODULE hModule)
     HWND windowHandle = FindWindow(0, L"AssaultCube");
     HDC hdc = GetDC(windowHandle);
     // Players
-    DWORD playersList = *(DWORD*)0x0050F4F8;
-    Player* localPlayer = *(Player**)0x0050F4F4;
-    std::vector<Player*> players{ localPlayer };
-    std::vector<Player*> visiblePlayers{ localPlayer };
-    int* nbPlayers = (int*)(0x50F500);
-    // Matrix
-    DWORD modelViewMatrixAddr = 0x501AE8;
-    float modelViewMatrix[16]{};
+
+    std::vector<Player*> players{ AC::localPlayer };
+    std::vector<Player*> visiblePlayers{ AC::localPlayer };
+
     // Recoil Hack
     EnableRecoilHack();
+    bool bRecoilHackActive = true;
+    bool bHackActive = true;
 
     while (!GetAsyncKeyState(VK_END))
     {
-        memcpy(&modelViewMatrix, (PBYTE*)(modelViewMatrixAddr), sizeof(modelViewMatrix));
-
-        DWORD nbOfPlayers = *(DWORD*)(0x50F500);
-
-        if (players.size() != nbOfPlayers)
+        if (GetAsyncKeyState(VK_NUMPAD1) & 1)
         {
-            players.resize(nbOfPlayers);
+            bHackActive = !bHackActive;
+            if (bRecoilHackActive)
+            {
+                DisableRecoilHack();
+                bRecoilHackActive = false;
+            }
         }
 
-        for (DWORD i = 1; i < nbOfPlayers; i++)
+        if (bHackActive)
         {
-            Player* player = *((Player**)(playersList + 0x4 * i) + 0x0);
-
-            if (player != NULL)
+            if (!bRecoilHackActive)
             {
-                if (player != players[i])
+                EnableRecoilHack();
+                bRecoilHackActive = true;
+            }
+
+            int nbOfPlayers = *(int*)(0x50F500);
+
+            if (players.size() != nbOfPlayers)
+            {
+                players.resize(nbOfPlayers);
+            }
+            GetPlayersList(players, nbOfPlayers);
+
+            // Aimbot
+            int nbOfVisiblePlayers = Aimbot::FindVisibleEnemyPlayers(players, visiblePlayers, *AC::nbPlayers);
+
+            if (nbOfVisiblePlayers > 1)
+            {
+                Player* priorityTarget = Aimbot::FindClosestPlayer(visiblePlayers, nbOfVisiblePlayers);
+                while (priorityTarget->state == 0 && priorityTarget->isVisible(AC::localPlayer))
                 {
-                    players[i] = player;
+                    // Move crosshair to player
+                    Aimbot::MoveCrosshairTo(priorityTarget->headPosition);
+                    SetAmmo(AC::localPlayer, 9999);
+                    // Shoot
+                    AC::localPlayer->bAttack = 1;
                 }
+                AC::localPlayer->bAttack = 0;
             }
+            visiblePlayers.resize(1);
         }
-        // Aimbot
-        int nbOfVisiblePlayers = FindVisibleEnemyPlayers(players, visiblePlayers, *nbPlayers);
-
-        if (nbOfVisiblePlayers > 1)
-        {
-            Player* priorityTarget = FindClosestPlayer(visiblePlayers, nbOfVisiblePlayers);
-            while (priorityTarget->state == 0 && priorityTarget->isVisible(localPlayer))
-            {
-                // Move crosshair to player
-                MoveCrosshairTo(priorityTarget->headPosition);
-                SetAmmo(localPlayer, 9999);
-                // Shoot
-                localPlayer->bAttack = 1;
-            }
-            localPlayer->bAttack = 0;
-        }
-
-        visiblePlayers.resize(1);
-
     }
     SwapBuffersHook.Disable();
     fclose(f);
@@ -155,10 +174,10 @@ DWORD WINAPI HackThread(HMODULE hModule)
     return 0;
 }
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(HMODULE hModule,
+    DWORD  ul_reason_for_call,
+    LPVOID lpReserved
+)
 {
     switch (ul_reason_for_call)
     {
@@ -171,4 +190,3 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     }
     return TRUE;
 }
-
