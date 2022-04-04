@@ -1,2 +1,2 @@
 # AC_Cheat
-A fully featured cheat for Assault Cube
+A simple aimbot & ESP cheat for Assault Cube
